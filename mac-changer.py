@@ -24,7 +24,8 @@ def change_mac(interface, new_mac):
 options = get_arguments()
 
 try:
-    sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
+    sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"], stderr=subprocess.STDOUT)
+    #sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
 except:
     print("[!] Interface doesn't exist.")
     exit()
