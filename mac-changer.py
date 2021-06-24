@@ -1,6 +1,5 @@
 import subprocess
 import optparse
-import re
 
 def get_arguments():
 
@@ -24,29 +23,22 @@ def change_mac(interface, new_mac):
 
 options = get_arguments()
 
-def get_mac(interface):
-    ifconfig_result = subprocess.check_output(["ifconfig", interface])
-    mac_result = re.search(r'\w\w:\w\w:\w\w:\w\w:\w\w:\w\w', ifconfig_result.decode('utf-8'))
-
-    try:
-        return mac_result.group(0)
-    except:
-        print("[-] Unable to read MAC address.")
-
-if get_mac(options.interface):
-    current_mac = get_mac(options.interface)
-else:
+try:
+    sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
+except:
+    print("[!] Interface doesn't exist.")
     exit()
-print("[*] Current MAC: "+ current_mac)
+
+try:
+    sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
+    print("[*] Current MAC: " + sys_output.strip())
+except:
+    print("[!] No such interface.")
 
 change_mac(options.interface, options.new_mac)
+current_mac = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
 
-current_mac = get_mac(options.interface)
-if current_mac == options.new_mac:
+if current_mac.strip() == options.new_mac:
     print("[+] MAC address changed to " + options.new_mac)
 else:
-    try:
-        print("[-] Unable to change MAC address to " + options.new_mac)
-    except:
-        print("[-] Unable to change MAC address.")
-        exit()
+    print("[!] Unable to change MAC address.")
