@@ -24,22 +24,23 @@ def change_mac(interface, new_mac):
 options = get_arguments()
 
 try:
-    sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"], stderr=subprocess.STDOUT)
-    #sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
-except:
-    print("[!] Interface doesn't exist.")
-    exit()
-
-try:
-    sys_output = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
-    print("[*] Current MAC: " + sys_output.strip())
+    with open('/sys/class/net/' + options.interface + '/address') as f:
+        sys_output = f.readlines()
+        for i in sys_output:
+            sys_output = i
+        print("[*] Current MAC: " + sys_output.strip())
 except:
     print("[!] No such interface.")
+    exit()
 
 change_mac(options.interface, options.new_mac)
-current_mac = subprocess.check_output(["cat", "/sys/class/net/" + options.interface + "/address"])
 
-if current_mac.strip() == options.new_mac:
+with open('/sys/class/net/' + options.interface + '/address') as f:
+    sys_output = f.readlines()
+    for i in sys_output:
+        sys_output = i
+
+if sys_output.strip() == options.new_mac:
     print("[+] MAC address changed to " + options.new_mac)
 else:
     print("[!] Unable to change MAC address.")
